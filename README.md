@@ -106,3 +106,8 @@ You will compile the C code into an `.elf` file, convert it to a `.hex` file, an
    avrdude -c usbasp -p m32 -U flash:w:Auto_Car_Parking.hex:i
    ```
    *(Note: `-c usbasp` specifies the programmer type, and `-p m32` specifies the Atmega32. Adjust these if your hardware is different).*
+---
+
+## Repository Note
+
+This repository documents an academic autonomous car parking project that combines embedded C, AVR microcontroller programming, Flutter applications, and sensor-based motor control.
