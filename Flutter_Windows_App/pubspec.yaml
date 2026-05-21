@@ -1,0 +1,36 @@
+name: robot_manual_controller
+description: Manual override Bluetooth controller for the Automatic Parking Robot (ATmega32A + HC-05).
+publish_to: 'none'
+version: 1.0.0+3
+
+environment:
+  sdk: '>=3.0.0 <4.0.0'
+
+dependencies:
+  flutter:
+    sdk: flutter
+
+  # Classic Bluetooth (SPP) with Android V2 embedding support
+  flutter_bluetooth_serial_plus: ^0.5.1
+  permission_handler: ^11.3.1
+  
+  # Windows COM Port support for HC-05
+  flutter_libserialport: ^0.3.0
+
+  # Icons
+  cupertino_icons: ^1.0.6
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^3.0.0
+  flutter_launcher_icons: ^0.13.1
+
+flutter_launcher_icons:
+  android: true
+  ios: false
+  image_path: "assets/icon.png"
+  min_sdk_android: 21
+
+flutter:
+  uses-material-design: true

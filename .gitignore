@@ -1,0 +1,68 @@
+# ==========================================
+# Flutter / Dart (Subdirectories included)
+# ==========================================
+**/.dart_tool/
+**/.flutter-plugins
+**/.flutter-plugins-dependencies
+**/.packages
+**/.pub-cache/
+**/.pub/
+**/build/
+app.*.symbols
+app.*.map.json
+
+# Android
+**/android/app/build/
+**/android/app/src/main/assets/
+**/android/local.properties
+**/.gradle/
+
+# Windows
+**/windows/flutter/ephemeral/
+**/windows/flutter/generated_plugin_registrant.cc
+
+# ==========================================
+# AVR / Embedded C/C++
+# ==========================================
+# Compiled binaries and build outputs
+*.elf
+*.hex
+*.bin
+*.eep
+*.lss
+*.map
+*.sym
+*.o
+*.a
+*.obj
+*.lst
+*.dep
+*.d
+
+# Build directories
+**/Debug/
+**/Release/
+**/.atmelstart/
+
+# ==========================================
+# IDEs, Settings and System Files
+# ==========================================
+# Visual Studio / VS Code
+**/.vscode/
+**/.history/
+**/.vs/
+*.suo
+*.user
+*.db
+*.opendb
+
+# IntelliJ / Android Studio / Eclipse
+*.iml
+*.ipr
+*.iws
+**/.idea/
+**/.metadata
+
+# OS Generated
+.DS_Store
+Thumbs.db
