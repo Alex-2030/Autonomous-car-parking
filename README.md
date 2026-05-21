@@ -1,5 +1,3 @@
-<!-- @format -->
-
 # 🚗 Autonomous Car Parking System
 
 Welcome to the **Autonomous Car Parking System**!
@@ -55,7 +53,9 @@ Don't worry if you aren't super tech-savvy! Before you run the code, you'll need
 
 **For the AVR Smart Car:**
 
-1.  **[Microchip Studio](https://www.microchip.com/en-us/tools-resources/develop/microchip-studio) (formerly Atmel Studio):** The software used to compile the `.c` code into a `.hex` file and flash it to the car's microcontroller.
+Instead of downloading a massive IDE, you only need the lightweight command-line tools to compile and flash the code:
+1.  **[AVR 8-Bit Toolchain (avr-gcc)](https://www.microchip.com/en-us/tools-resources/develop/microchip-studio/gcc-compilers):** The official compiler used to convert your C code into a format the chip understands. *(Make sure to add it to your system PATH!)*
+2.  **[AVRDUDE](https://github.com/avrdudes/avrdude/releases):** A simple command-line tool used to flash (upload) the compiled code into the car's microcontroller.
 
 ---
 
@@ -64,16 +64,14 @@ Don't worry if you aren't super tech-savvy! Before you run the code, you'll need
 ### 📱 1. Running and Building the Android Mobile App
 
 **To test the app on an Emulator:**
-
 1. Open **Android Studio**.
 2. Go to **Tools > Device Manager** (or **Virtual Device Manager**) and click **Create Device**.
-3. Choose a phone model (e.g., Pixel 7) and download a system image (like API 34).
+3. Choose a phone model (e.g., Pixel 7) and download a system image (like API 34). 
 4. Once created, click the **Play** button to launch the emulator.
 5. Open the `Flutter_Mobile_App` folder in Android Studio.
 6. Click the **Run** button (green play icon) at the top toolbar to install and test the app on the emulator.
 
 **To build the final APK file (to install on a real phone):**
-
 1. Open your computer's terminal (Command Prompt or PowerShell) and navigate inside the `Flutter_Mobile_App` folder.
 2. Run the command: `flutter build apk`
 3. **Where to find it:** The compiled `.apk` file will be located at:
@@ -85,18 +83,26 @@ Don't worry if you aren't super tech-savvy! Before you run the code, you'll need
 2. Run the command: `flutter build windows`
 3. **Where to find it:** The compiled `.exe` file (and required DLLs) will be located at:
    `Flutter_Windows_App\build\windows\x64\runner\Release\`
-   _(You can double-click the `.exe` file in this folder to run the app directly on your PC!)_
+   *(You can double-click the `.exe` file in this folder to run the app directly on your PC!)*
 
 ### 🏎️ 3. Building and Flashing the AVR Code to the Car
 
-1. Open **Microchip Studio**.
-2. Create a new "GCC C Executable Project" and name it `Auto_Car_Parking`.
-3. Copy the contents of the `Auto_Car_Parking.c` file from this repository and paste it over the default `main.c` file in your new Microchip Studio project.
-4. **Build the Code:** Click **Build > Build Solution** from the top menu.
-5. **Where to find the HEX file:** Once built successfully, the compiled `.hex` file will be automatically generated inside your Microchip Studio project folder at:
-   `Auto_Car_Parking\Debug\Auto_Car_Parking.hex` (or `Release\` depending on your setup).
-6. **Flash the Code:**
-   - Connect your AVR programmer (e.g., USBasp) to your computer and the car.
-   - In Microchip Studio, click **Tools > Device Programming**.
-   - Select your programmer and the Atmega 32A chip, then click **Apply**.
-   - Go to the **Memories** tab, click the `...` button to browse and select the `.hex` file you located earlier, and click **Program** to upload it to the car!
+You will compile the C code into an `.elf` file, convert it to a `.hex` file, and then flash it.
+
+1. Open your terminal and navigate to the main project folder containing `Auto_Car_Parking.c`.
+2. **Compile the Code (.elf):** Run this command to compile the code into an `.elf` file:
+   ```bash
+   avr-gcc -g -Os -mmcu=atmega32a -o Auto_Car_Parking.elf Auto_Car_Parking.c
+   ```
+   *(Note: `-mmcu=atmega32a` is for the Atmega 32A. Adjust if using a different chip).*
+
+3. **Convert to HEX (.hex):** Extract the `.hex` file (the raw machine code the car understands) from the `.elf` file by running:
+   ```bash
+   avr-objcopy -j .text -j .data -O ihex Auto_Car_Parking.elf Auto_Car_Parking.hex
+   ```
+
+4. **Flash the Code:** Connect your AVR programmer (e.g., a USBasp) to your computer and to the car's chip. Run AVRDUDE to upload the `.hex` file:
+   ```bash
+   avrdude -c usbasp -p m32 -U flash:w:Auto_Car_Parking.hex:i
+   ```
+   *(Note: `-c usbasp` specifies the programmer type, and `-p m32` specifies the Atmega32. Adjust these if your hardware is different).*
