@@ -73,7 +73,7 @@ Instead of downloading a massive IDE, you only need the lightweight command-line
 
 **To build the final APK file (to install on a real phone):**
 1. Open your computer's terminal (Command Prompt or PowerShell) and navigate inside the `Flutter_Mobile_App` folder.
-2. Run the command: `flutter build apk`
+2. Run the command: `flutter build apk` or `flutter build apk --release`
 3. **Where to find it:** The compiled `.apk` file will be located at:
    `Flutter_Mobile_App\build\app\outputs\flutter-apk\app-release.apk`
 
