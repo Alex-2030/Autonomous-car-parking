@@ -3,12 +3,11 @@
  * MCU      : ATmega32A @ 11.0592 MHz
  * Toolchain: avr-gcc / avr-libc
  *
- * FIXES APPLIED
+ * Notes
  * ─────────────────────────────────────────────────────────────────
- * Fix 1: Removed double-confirm (EDGE_CONFIRM) on gap OPEN edge.
- * Fix 2: Removed double-confirm (EDGE_CONFIRM) on gap CLOSE edge.
- * Fix 3: After front obstacle avoidance, set prev_side = 0.
- * Fix 4: Enabled UART RX and added Bluetooth support to manual mode.
+ * Gap OPEN/CLOSE edges require only one big delta jump (no double-confirm).
+ * After front obstacle avoidance, prev_side is reset to avoid stale delta.
+ * UART RX enabled — Bluetooth manual control supported (F/B/L/R/S commands).
  *******************************************************************************/
 
 #define F_CPU 11059200UL
@@ -100,14 +99,10 @@
 /* ────────────────────────────────────────────────────────────────
  * GLOBAL STATE
  * ──────────────────────────────────────────────────────────────── */
-volatile uint8_t manual_override_flag = 0;
 volatile uint8_t state        = STATE_IDLE;
-volatile uint8_t is_parked    = 0;
-volatile uint8_t parking_lock = 0;
 
 uint16_t prev_side      = 0;
 uint8_t  gap_pulses     = 0;
-uint8_t  close_confirm  = 0;   /* kept for close edge only, now threshold=1 */
 uint8_t  saw_wall_first = 0;
 
 /* ────────────────────────────────────────────────────────────────
@@ -154,7 +149,6 @@ void uart_puts(const char *s)
  * ════════════════════════════════════════════════════════════════ */
 ISR(INT2_vect)
 {
-    manual_override_flag = 1;
     motors_stop();
 }
 
@@ -362,14 +356,10 @@ void reset_parking_mode(void)
     motors_stop();
 
     state        = STATE_IDLE;
-    is_parked    = 0;
-    parking_lock = 0;
 
     prev_side      = 0;
     gap_pulses     = 0;
-    close_confirm  = 0;
     saw_wall_first = 0;
-    manual_override_flag = 0;
 }
 /* ════════════════════════════════════════════════════════════════
  * PARKING SEQUENCE
@@ -381,7 +371,6 @@ void park_car(void)
     uint8_t  p2_confirm   = 0;
     uint8_t  i;
 
-    parking_lock = 1;
     state        = STATE_PARKING;
     uart_puts("[PARK] Sequence start\r\n");
 
@@ -465,7 +454,6 @@ void park_car(void)
         if (rear_confirm >= REAR_STOP_CONFIRM)
         {
             motors_stop();
-            is_parked = 1;
             state     = STATE_DONE;
             uart_puts("[PARK] Done — rear wall\r\n");
             return;
@@ -478,7 +466,6 @@ void park_car(void)
     }
 
     motors_stop();
-    is_parked = 1;
     state     = STATE_DONE;
     uart_puts("[PARK] Done — max steps\r\n");
 }
@@ -539,7 +526,6 @@ void autonomous_mode(void)
         if (saw_wall_first && s >= SIDE_FAR_CM && delta >= GAP_DELTA_CM)
         {
             gap_pulses    = 0;
-            close_confirm = 0;
             state         = STATE_GAP_COUNTING;
             uart_puts("[SM] Gap OPENED — counting\r\n");
         }
@@ -551,7 +537,6 @@ void autonomous_mode(void)
         {
             /* Still inside the gap — count it */
             if (gap_pulses < 255) gap_pulses++;
-            close_confirm = 0;
 
             sprintf(buf, "[SM] Gap pulse %u\r\n", (uint16_t)gap_pulses);
             uart_puts(buf);
